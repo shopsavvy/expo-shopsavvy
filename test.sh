@@ -33,7 +33,7 @@ if command -v bun >/dev/null 2>&1; then
   bun run typecheck
   echo "==> build"
   bun run build
-  if [ ! -f dist/index.js ] || [ ! -f dist/index.cjs ] || [ ! -f plugin/build/withShopsavvy.js ]; then
+  if [ ! -f dist/index.js ] || [ ! -f dist/index.mjs ] || [ ! -f plugin/build/withShopsavvy.js ]; then
     echo "ERROR: build artifacts missing"
     exit 1
   fi
