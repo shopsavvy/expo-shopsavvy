@@ -1,8 +1,9 @@
 import React, { useState } from "react"
 import { FlatList, SafeAreaView, Text, TextInput, View } from "react-native"
-import { ShopsavvyProvider, useProductSearch } from "expo-shopsavvy"
 import Constants from "expo-constants"
+import { ShopsavvyProvider, useProductSearch } from "expo-shopsavvy"
 
+// Injected by the expo-shopsavvy config plugin from app.json -> plugins -> apiKey.
 const API_KEY = (Constants.expoConfig?.extra as { shopsavvyApiKey?: string } | undefined)?.shopsavvyApiKey ?? ""
 
 function SearchScreen() {
@@ -19,8 +20,8 @@ function SearchScreen() {
       {error && <Text>Error: {error.message}</Text>}
       <FlatList
         data={data?.data ?? []}
-        keyExtractor={(item, i) => String((item as { id?: string }).id ?? i)}
-        renderItem={({ item }) => <Text>{(item as { name?: string }).name}</Text>}
+        keyExtractor={(item) => item.shopsavvy}
+        renderItem={({ item }) => <Text>{item.title}</Text>}
       />
     </View>
   )
