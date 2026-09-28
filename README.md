@@ -63,7 +63,7 @@ function Search() {
 |------|------|--------|
 | `useProductSearch(query, limit?)` | keyword, optional limit (default 20); an empty query makes no request | `{ data: Product[], pagination }` |
 | `usePriceComparison(identifier)` | barcode/UPC, ASIN, URL, model number, or ShopSavvy ID | `{ data: [{ title, offers: [{ retailer, price, URL, ... }] }] }` |
-| `usePriceHistory(identifier, days?)` | identifier + days back from today (default 90) | `{ data: [{ retailer, history: [{ timestamp, price }] }] }` |
+| `usePriceHistory(identifier, days?)` | identifier + days back from today (default 90) | `{ data: [{ title, offers: [{ retailer, history: [{ timestamp, price, currency, availability }] }] }] }` (one entry per product; history newest first) |
 | `useDeals(options?)` | `sort` (`hot`, `new`, `top-hour`, `top-day`, `top-week`), `limit`, `offset`, `category`, `retailer`, `tag`, `min_price`, `max_price`, `grade` | `{ deals: [{ title, grade, pricing, retailer, url, votes }] }` |
 
 Every hook returns `{ data, loading, error, refetch }`.

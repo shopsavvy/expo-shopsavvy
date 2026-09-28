@@ -1,4 +1,4 @@
-import type { APIResponse, OfferWithHistory } from "@shopsavvy/sdk"
+import type { APIResponse, ProductWithOfferHistory } from "@shopsavvy/sdk"
 import { useShopsavvyClient } from "../provider/ShopsavvyProvider"
 import { useAsync, type AsyncState } from "./useAsync"
 
@@ -7,9 +7,10 @@ function isoDate(d: Date): string {
 }
 
 /**
- * Price history for the last `days` days (ending today), per retailer offer.
+ * Price history for the last `days` days (ending today). `data` has one entry per
+ * product, each with its `offers`, and each offer carries its own `history` (newest first).
  */
-export function usePriceHistory(identifier: string, days = 90): AsyncState<APIResponse<OfferWithHistory[]>> {
+export function usePriceHistory(identifier: string, days = 90): AsyncState<APIResponse<ProductWithOfferHistory[]>> {
   const client = useShopsavvyClient()
   const enabled = identifier.trim().length > 0
   return useAsync(

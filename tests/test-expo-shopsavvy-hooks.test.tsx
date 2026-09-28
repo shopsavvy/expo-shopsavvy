@@ -92,7 +92,13 @@ describe('usePriceHistory', () => {
   test('hits /products/offers/history with start/end spanning `days`, ending today', async () => {
     const { result } = renderHook(() => usePriceHistory('0194253397137', 30), { wrapper })
     await waitFor(() => expect(result.current.data).not.toBeNull())
-    expect(result.current.data?.data[0].history.map((h) => h.price)).toEqual([249.0, 189.99])
+    // products -> offers -> history, as the Data API returns it (newest point first)
+    const product = result.current.data!.data[0]
+    expect(product.shopsavvy).toBe('ss-airpods-pro-2')
+    expect(product.offers.map((o) => o.retailer)).toEqual(['Amazon', 'eBay'])
+    expect(product.offers[0].history.map((h) => h.price)).toEqual([189.99, 249.0])
+    expect(product.offers[0].history[1].currency).toBeNull()
+    expect(product.offers[1].history).toEqual([])
     const { params } = lastRequestTo('/v1/products/offers/history')
     expect(params.ids).toBe('0194253397137')
     expect(params.end).toBe(new Date().toISOString().split('T')[0])
