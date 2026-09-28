@@ -1,41 +1,47 @@
-import type { ConfigPlugin } from "@expo/config-plugins"
-import type { ExpoConfig } from "@expo/config-types"
+import { AndroidConfig, withInfoPlist, type ConfigPlugin } from "expo/config-plugins"
 
-interface ShopsavvyPluginProps {
+export interface ShopsavvyPluginProps {
+  /**
+   * Your ShopSavvy Data API key. Exposed to the app at runtime as
+   * `Constants.expoConfig.extra.shopsavvyApiKey` (via expo-constants).
+   */
   apiKey?: string
-  cameraPermission?: string
+  /**
+   * iOS camera usage string, shown when the app asks for camera access to
+   * scan barcodes. Pass `false` to leave camera permissions untouched (e.g.
+   * if the app never scans).
+   */
+  cameraPermission?: string | false
 }
 
-const withShopsavvy: ConfigPlugin<ShopsavvyPluginProps | void> = (config, props) => {
-  const options = (props ?? {}) as ShopsavvyPluginProps
-  const cameraPermission =
-    options.cameraPermission ||
-    "$(PRODUCT_NAME) needs camera access to scan barcodes for instant price comparison."
+export const DEFAULT_CAMERA_PERMISSION =
+  "Allow $(PRODUCT_NAME) to use the camera to scan barcodes for instant price comparison."
 
-  const next: ExpoConfig = { ...config }
+const withShopsavvy: ConfigPlugin<ShopsavvyPluginProps | void> = (config, props) => {
+  const options: ShopsavvyPluginProps = props ?? {}
 
   if (options.apiKey) {
-    next.extra = { ...(next.extra ?? {}), shopsavvyApiKey: options.apiKey }
+    config.extra = { ...(config.extra ?? {}), shopsavvyApiKey: options.apiKey }
   }
 
-  next.ios = {
-    ...(next.ios ?? {}),
-    infoPlist: {
-      ...((next.ios as any)?.infoPlist ?? {}),
-      NSCameraUsageDescription: cameraPermission,
-    },
-  } as ExpoConfig["ios"]
+  if (options.cameraPermission === false) {
+    return config
+  }
 
-  const existingAndroidPermissions = (next.android?.permissions as string[] | undefined) ?? []
-  next.android = {
-    ...(next.android ?? {}),
-    permissions: Array.from(new Set([...existingAndroidPermissions, "android.permission.CAMERA"])),
-  } as ExpoConfig["android"]
+  const cameraPermission = options.cameraPermission || DEFAULT_CAMERA_PERMISSION
 
-  next.plugins = [...(next.plugins ?? []), ["expo-barcode-scanner", { cameraPermission }]]
+  config = withInfoPlist(config, (cfg) => {
+    // Don't clobber a usage string the app (or another plugin, e.g.
+    // expo-camera) already set unless the developer passed one explicitly.
+    if (options.cameraPermission || !cfg.modResults.NSCameraUsageDescription) {
+      cfg.modResults.NSCameraUsageDescription = cameraPermission
+    }
+    return cfg
+  })
 
-  return next
+  config = AndroidConfig.Permissions.withPermissions(config, ["android.permission.CAMERA"])
+
+  return config
 }
 
 export default withShopsavvy
-module.exports = withShopsavvy
