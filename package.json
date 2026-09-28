@@ -1,11 +1,12 @@
 {
   "name": "expo-shopsavvy",
   "version": "0.1.0",
-  "description": "Expo config plugin and React hooks for product search, price comparison, and barcode scanning powered by ShopSavvy",
+  "description": "Expo config plugin and React hooks for product search, price comparison, price history, and deals powered by ShopSavvy",
   "keywords": [
     "expo",
     "react-native",
     "expo-config-plugin",
+    "config-plugin",
     "shopsavvy",
     "barcode",
     "price-comparison",
@@ -15,7 +16,10 @@
   "homepage": "https://shopsavvy.com/integrations/expo",
   "repository": {
     "type": "git",
-    "url": "https://github.com/shopsavvy/expo-shopsavvy"
+    "url": "git+https://github.com/shopsavvy/expo-shopsavvy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shopsavvy/expo-shopsavvy/issues"
   },
   "license": "MIT",
   "author": "ShopSavvy by Monolith Technologies, Inc.",
@@ -24,34 +28,47 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
     },
-    "./app.plugin.js": "./app.plugin.js"
+    "./app.plugin.js": "./app.plugin.js",
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
-    "plugin",
+    "plugin/build",
     "app.plugin.js"
   ],
+  "sideEffects": false,
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts && tsup plugin/src/withShopsavvy.ts --format cjs --dts --out-dir plugin/build",
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean && tsup plugin/src/withShopsavvy.ts --format cjs --dts --clean --out-dir plugin/build",
     "typecheck": "tsc --noEmit",
-    "test": "echo 'no tests yet' && exit 0"
+    "test": "bun test",
+    "prepublishOnly": "npm run typecheck && npm run build"
+  },
+  "dependencies": {
+    "@shopsavvy/sdk": "^1.1.0"
   },
   "peerDependencies": {
-    "expo": ">=49.0.0",
+    "expo": ">=50.0.0",
     "react": ">=18.0.0",
-    "react-native": ">=0.72.0"
+    "react-native": ">=0.73.0"
   },
   "devDependencies": {
-    "@expo/config-plugins": "^8.0.0",
-    "@expo/config-types": "^51.0.0",
-    "@types/react": "^18.2.0",
-    "expo": "^50.0.0",
-    "react": "^18.2.0",
-    "react-native": "^0.74.0",
+    "@expo/config": "^57.0.0",
+    "@happy-dom/global-registrator": "^20.0.0",
+    "@testing-library/react": "^16.0.0",
+    "@types/bun": "latest",
+    "@types/react": "^19.0.0",
+    "expo": "^57.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "tsup": "^8.0.0",
     "typescript": "^5.4.0"
   }
